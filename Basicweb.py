@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from audio import printWAV
 import time, random, threading
 from turbo_flask import Turbo
+from flask_bcrypt import Bcrypt
 
 
 app = Flask(__name__)
@@ -14,15 +15,18 @@ db = SQLAlchemy(app)
 interval=5
 FILE_NAME = "Doctor_Speech.wav"
 turbo = Turbo(app)
+bcrypt = Bcrypt(app)
 
 class User(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  username = db.Column(db.String(20), unique=True, nullable=False)
-  email = db.Column(db.String(120), unique=True, nullable=False)
-  password = db.Column(db.String(60), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(60), nullable=False)
+  # password = db.Column(db.String(60), nullable=False)
 
-  def __repr__(self):
-    return f"User('{self.username}', '{self.email}')"
+    def __repr__(self):
+        # passwordhash = bcrypt.generate_password_hash(self.password)
+        return f"User('{self.username}', '{self.email}', '{self.password}')" # # , '{passwordhash}'
 
 @app.route("/")
 @app.route("/home")
@@ -41,13 +45,18 @@ def about():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit(): # checks if entries are valid
-        user = User(username=form.username.data, email=form.email.data, password=form.password.data)
+        passwordhash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=passwordhash)
         db.session.add(user)
         db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
         return redirect(url_for('home')) # if so - send to home page
     return render_template('register.html', title='Register', form=form)
 
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    return render_template('login.html',title='Login',form=form)
+    
 @app.route("/captions")
 def captions():
     TITLE = "12th Doctor Speech"
