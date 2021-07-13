@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, flash, redirect
-from forms import RegistrationForm
+from forms import RegistrationForm, LoginForm
 from flask_sqlalchemy import SQLAlchemy
 from audio import printWAV
 import time, random, threading
@@ -43,6 +43,7 @@ def about():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    print(url_for('register'))
     form = RegistrationForm()
     if form.validate_on_submit(): # checks if entries are valid
         passwordhash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -55,6 +56,23 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = db.session.query(User.id).filter_by(username=form.username.data).first() is not None
+        if username is True:
+            # passwordhash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            password = db.session.query(User.password).filter_by(username=form.username.data).first()
+            password = password[0]
+            print(password)
+            if bcrypt.check_password_hash(password, form.password.data):
+                flash(f'Logged in as {form.username.data}!', 'success')
+                return redirect(url_for('home'))
+            else:
+                flash(f'Wrong password for {form.username.data}!','danger')
+                return redirect(url_for('home'))
+        else:
+            flash(f'Account does not exist for {form.username.data}!','danger')
+            return redirect(url_for('home'))
     return render_template('login.html',title='Login',form=form)
     
 @app.route("/captions")
