@@ -22,8 +22,13 @@ jobs:
           pip3 install turbo_flask
           pip3 install SpeechRecognition
           pip3 install flask-bcrypt
+          pip3 install coverage
 
       - name: Test webpages
         run: | 
           python3 tests/test_basic.py
           python3 tests/test_users.py
+
+      - name: Check code coverage                        #new from here down
+        run: |
+          python3 -m coverage run -m unittest discover tests
