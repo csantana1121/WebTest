@@ -32,3 +32,4 @@ jobs:
       - name: Check code coverage                        #new from here down
         run: |
           python3 -m coverage run -m unittest discover tests
+          python3 -m coverage report
