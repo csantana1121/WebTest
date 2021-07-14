@@ -1,7 +1,8 @@
 # .coveragerc to control coverage.py
+
 [run]
 omit =
-        *__init__*
-        */dist-packages/*
-        */site-packages/*
-        *Test*
+    *__init__*
+    */dist-packages/*
+    */site-packages/*
+    *tests/*
