@@ -63,16 +63,15 @@ def login():
             # passwordhash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
             password = db.session.query(User.password).filter_by(username=form.username.data).first()
             password = password[0]
-            print(password)
             if bcrypt.check_password_hash(password, form.password.data):
                 flash(f'Logged in as {form.username.data}!', 'success')
                 return redirect(url_for('home'))
             else:
                 flash(f'Wrong password for {form.username.data}!','danger')
-                return redirect(url_for('home'))
+                return redirect(url_for('login'))
         else:
             flash(f'Account does not exist for {form.username.data}!','danger')
-            return redirect(url_for('home'))
+            return redirect(url_for('login'))
     return render_template('login.html',title='Login',form=form)
     
 @app.route("/captions")
@@ -88,7 +87,7 @@ def before_first_request():
     file.close()
 
     #starting thread that will time updates
-    threading.Thread(target=update_captions).start()
+    threading.Thread(target=update_captions, daemon=True).start()
 
 @app.context_processor
 def inject_load():
