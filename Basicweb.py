@@ -68,10 +68,10 @@ def login():
                 return redirect(url_for('home'))
             else:
                 flash(f'Wrong password for {form.username.data}!','danger')
-                return render_template('login.html',title='Login',form=form)
+                return redirect(url_for('login'))
         else:
             flash(f'Account does not exist for {form.username.data}!','danger')
-            return render_template('login.html',title='Login',form=form)
+            return redirect(url_for('login'))
     return render_template('login.html',title='Login',form=form)
     
 @app.route("/captions")
