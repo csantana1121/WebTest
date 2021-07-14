@@ -71,7 +71,7 @@ def login():
                 return render_template('login.html',title='Login',form=form)
         else:
             flash(f'Account does not exist for {form.username.data}!','danger')
-            return ('login.html',title='Login',form=form)
+            return render_template('login.html',title='Login',form=form)
     return render_template('login.html',title='Login',form=form)
     
 @app.route("/captions")
