@@ -43,7 +43,6 @@ def about():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-    print(url_for('register'))
     form = RegistrationForm()
     if form.validate_on_submit(): # checks if entries are valid
         passwordhash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
