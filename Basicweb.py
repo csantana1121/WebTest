@@ -97,7 +97,7 @@ def login():
                 flash(f'Logged in as {form.username.data}!', 'success')
                 user = User.query.filter_by(username=form.username.data).first()
                 login_user(user, remember=remember)
-                return redirect(url_for('home'))
+                return redirect(url_for('profile'))
             else:
                 flash(f'Wrong password for {form.username.data}!','danger')
                 return redirect(url_for('login'))
@@ -149,6 +149,7 @@ def profile():
 @login_required
 def logout():
     logout_user()
+    flash(f'Logged out', 'success')
     return redirect(url_for('home'))
 
 def update_captions():
