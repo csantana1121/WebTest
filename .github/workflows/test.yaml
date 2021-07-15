@@ -23,6 +23,8 @@ jobs:
           pip3 install SpeechRecognition
           pip3 install flask-bcrypt
           pip3 install coverage
+          pip3 install flask-behind-proxy
+          pip3 install flask-login
 
       - name: Test webpages
         run: | 
