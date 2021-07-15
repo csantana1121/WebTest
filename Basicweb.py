@@ -6,6 +6,7 @@ import time, random, threading
 from turbo_flask import Turbo
 from flask_bcrypt import Bcrypt
 from flask_behind_proxy import FlaskBehindProxy
+from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
 
 app = Flask(__name__)
 proxied = FlaskBehindProxy(app)
@@ -18,7 +19,11 @@ FILE_NAME = "Doctor_Speech.wav"
 turbo = Turbo(app)
 bcrypt = Bcrypt(app)
 
-class User(db.Model):
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -61,6 +66,19 @@ def register():
         else:
             flash(f'That username is already taken please try another','danger')
             return redirect(url_for('register'))
+    try:
+        if len(form.username.data) < 2:
+            flash(f'Username is too short', 'danger')
+            return redirect(url_for('register'))
+        if len(form.username.data)> 20:
+            flash(f'Username is too long', 'danger')
+            return redirect(url_for('register'))
+        if form.password.data != form.confirm_password:
+            SavedUsername = form.username.data
+            flash(f'Passwords do not match', 'danger')
+            return redirect(url_for('register'))
+    except TypeError:
+        pass
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -73,8 +91,12 @@ def login():
             password = password[0]
             if bcrypt.check_password_hash(password, form.password.data):
                 remember = request.form.get('Remember') #on if checked, None if not checked
+                if remember == 'on':
+                    remember = True
                 print(remember)
                 flash(f'Logged in as {form.username.data}!', 'success')
+                user = User.query.filter_by(username=form.username.data).first()
+                login_user(user, remember=remember)
                 return redirect(url_for('home'))
             else:
                 flash(f'Wrong password for {form.username.data}!','danger')
@@ -113,6 +135,21 @@ def inject_load():
 
     #returning captions
     return {'caption':printWAV(FILE_NAME, pos=pos, clip=interval)}
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route("/profile")
+@login_required
+def profile():
+    return render_template('profile.html', name=current_user.username)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
 
 def update_captions():
     with app.app_context():
