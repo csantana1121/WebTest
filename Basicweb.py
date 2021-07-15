@@ -70,12 +70,14 @@ def register():
         if len(form.username.data) < 2:
             flash(f'Username is too short', 'danger')
             return redirect(url_for('register'))
-        if len(form.username.data)> 20:
+        elif len(form.username.data)> 20:
             flash(f'Username is too long', 'danger')
             return redirect(url_for('register'))
-        if form.password.data != form.confirm_password:
-            SavedUsername = form.username.data
+        elif form.password.data != form.confirm_password.data:
             flash(f'Passwords do not match', 'danger')
+            return redirect(url_for('register'))
+        elif form.email.data != None:
+            flash(f'Invalid email address', 'danger')
             return redirect(url_for('register'))
     except TypeError:
         pass
