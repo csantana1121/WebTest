@@ -5,9 +5,10 @@ from audio import printWAV
 import time, random, threading
 from turbo_flask import Turbo
 from flask_bcrypt import Bcrypt
-
+from flask_behind_proxy import FlaskBehindProxy
 
 app = Flask(__name__)
+proxied = FlaskBehindProxy(app)
 
 app.config['SECRET_KEY'] = 'e1d83ef5eb5597092580ab3200653d03'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
