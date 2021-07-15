@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, flash, redirect
+from flask import Flask, render_template, url_for, flash, redirect, request
 from forms import RegistrationForm, LoginForm
 from flask_sqlalchemy import SQLAlchemy
 from audio import printWAV
@@ -72,6 +72,8 @@ def login():
             password = db.session.query(User.password).filter_by(username=form.username.data).first()
             password = password[0]
             if bcrypt.check_password_hash(password, form.password.data):
+                remember = request.form.get('Remember') #on if checked, None if not checked
+                print(remember)
                 flash(f'Logged in as {form.username.data}!', 'success')
                 return redirect(url_for('home'))
             else:
